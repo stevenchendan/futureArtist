@@ -237,9 +237,9 @@ NEXT_PUBLIC_APP_NAME=Future Artist
 MIT License - See LICENSE file for details
 
 ## Team
-
-[Your team information here]
+Steven(Liang) Chen
+Kuan Yu
 
 ## Acknowledgments
 
-Built for the Gemini Live Agent Challenge 2025 - Creative Storyteller Track
+Built for the Gemini Live Agent Challenge 2026 - Creative Storyteller Track

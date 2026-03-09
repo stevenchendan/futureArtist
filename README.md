@@ -1,6 +1,6 @@
 # Future Artist - Creative Storyteller AI Agent
 
-## Gemini Live Agent Challenge 2025 Submission
+## Gemini Live Agent Challenge 2026 Submission
 
 A multimodal AI storytelling platform that leverages Gemini's interleaved output capabilities to create rich, mixed-media narratives combining text, images, audio, and video in a single, fluid output stream.
 

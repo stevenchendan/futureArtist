@@ -205,3 +205,25 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Node / Frontend
+node_modules/
+.next/
+out/
+*.log
+npm-debug.log*
+
+# Environment
+.env.local
+.env.*.local
+service-account.json
+*.json.key
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

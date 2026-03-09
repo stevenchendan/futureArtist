@@ -1,0 +1,26 @@
+# Dependencies
+node_modules
+npm-debug.log
+
+# Next.js
+.next
+out
+
+# Environment
+.env*.local
+.env
+
+# IDE
+.vscode
+.idea
+*.swp
+
+# Git
+.git
+.gitignore
+
+# Testing
+coverage
+
+# Documentation
+README.md

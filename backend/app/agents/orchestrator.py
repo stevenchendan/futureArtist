@@ -107,7 +107,7 @@ class OrchestratorAgent:
             logger.info(f"Story generation complete: {story_id}")
 
         except Exception as e:
-            logger.error(f"Story generation failed: {e}")
+            logger.error(f"Story generation failed with error: {e}")
             yield self._create_chunk(
                 story_id,
                 "metadata",

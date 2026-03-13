@@ -3,9 +3,11 @@ Image Generator Agent
 Generates contextual illustrations using Gemini's image generation
 """
 
+import base64
 from typing import Dict, Any
 import structlog
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 from app.adk.config import ADKConfig
 
@@ -18,7 +20,8 @@ class ImageGeneratorAgent:
     def __init__(self, config: ADKConfig):
         self.config = config
         # Use Gemini model with image generation capabilities
-        self.model = genai.GenerativeModel(config.gemini_model)
+        self.model = "gemini-3.1-flash-image-preview"
+        self.client = genai.Client(api_key=config.gemini_api_key)
 
     async def generate_image(
         self, scene: Dict[str, Any], style_guide: Dict[str, Any]
@@ -38,20 +41,32 @@ class ImageGeneratorAgent:
         # Build image generation prompt
         image_prompt = self._build_image_prompt(scene, style_guide)
 
-        # For now, return prompt - actual image generation will use Imagen or similar
-        # This is a placeholder that demonstrates the architecture
+        response = await self.client.aio.models.generate_content(
+            model=self.model,
+            contents=[image_prompt],
+            config=types.GenerateContentConfig(
+                candidate_count=1,
+                response_modalities=["Image"],
+                image_config=types.ImageConfig(
+                    aspect_ratio="16:9",
+                    image_size="1K"  # Options: 1K, 2K, 4K
+                )
+            )
+        )
         return {
             "type": "image",
             "data": {
                 "scene_number": scene.get("scene_number"),
                 "prompt": image_prompt,
                 "style": style_guide.get("visual_style"),
+                "generated_data": base64.b64encode(response.candidates[0].content.parts[0].inline_data.data).decode('utf-8'),
                 "metadata": {
                     "visual_elements": scene.get("visual_elements", []),
                     "color_palette": style_guide.get("color_palette")
                 }
             }
         }
+
 
     def _build_image_prompt(
         self, scene: Dict[str, Any], style_guide: Dict[str, Any]

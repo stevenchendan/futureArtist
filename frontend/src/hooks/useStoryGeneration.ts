@@ -16,7 +16,9 @@ export function useStoryGeneration() {
     setStoryContent([])
 
     try {
+      console.log('Generating story...', process.env.NEXT_PUBLIC_WS_URL)
       const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000'
+      console.log('WebSocket URL:', wsUrl)
       const ws = new WebSocket(`${wsUrl}/ws/story`)
 
       ws.onopen = () => {

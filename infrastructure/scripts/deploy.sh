@@ -45,13 +45,15 @@ gsutil mb -p $PROJECT_ID -l $REGION gs://$BUCKET_NAME/ || echo "Bucket already e
 # Deploy Backend
 echo -e "\n${GREEN}Deploying backend...${NC}"
 cd backend
-gcloud run deploy futureartist-backend \
-    --source . \
-    --region=$REGION \
-    --platform=managed \
-    --allow-unauthenticated \
-    --set-env-vars="GOOGLE_CLOUD_PROJECT=$PROJECT_ID,CLOUD_STORAGE_BUCKET=$BUCKET_NAME" \
-    --project=$PROJECT_ID
+# gcloud run deploy futureartist-backend \
+#     --source . \
+#     --region=$REGION \
+#     --platform=managed \
+#     --allow-unauthenticated \
+#     --set-env-vars="GOOGLE_CLOUD_PROJECT=$PROJECT_ID,CLOUD_STORAGE_BUCKET=$BUCKET_NAME,USE_SECRET_MANAGER=True" \
+#     --update-secrets=GEMINI_API_KEY=gemini-api-key:latest
+#     --project=$PROJECT_ID
+gcloud builds submit
 
 BACKEND_URL=$(gcloud run services describe futureartist-backend --region=$REGION --format='value(status.url)' --project=$PROJECT_ID)
 echo -e "${GREEN}✓ Backend deployed: $BACKEND_URL${NC}"
@@ -59,13 +61,15 @@ echo -e "${GREEN}✓ Backend deployed: $BACKEND_URL${NC}"
 # Deploy Frontend
 echo -e "\n${GREEN}Deploying frontend...${NC}"
 cd ../frontend
-gcloud run deploy futureartist-frontend \
-    --source . \
-    --region=$REGION \
-    --platform=managed \
-    --allow-unauthenticated \
-    --set-env-vars="NEXT_PUBLIC_API_URL=$BACKEND_URL" \
-    --project=$PROJECT_ID
+# gcloud run deploy futureartist-frontend \
+#     --source . \
+#     --region=$REGION \
+#     --platform=managed \
+#     --allow-unauthenticated \
+#     --set-env-vars="NEXT_PUBLIC_API_URL=$BACKEND_URL,NEXT_PUBLIC_WS_URL=$BACKEND_URL" \
+#     --set-build-env-vars="NEXT_PUBLIC_API_URL=$BACKEND_URL,NEXT_PUBLIC_WS_URL=$BACKEND_URL" \
+#     --project=$PROJECT_ID
+gcloud builds submit --substitutions=_BACKEND_URL="$BACKEND_URL"
 
 FRONTEND_URL=$(gcloud run services describe futureartist-frontend --region=$REGION --format='value(status.url)' --project=$PROJECT_ID)
 echo -e "${GREEN}✓ Frontend deployed: $FRONTEND_URL${NC}"

@@ -33,7 +33,7 @@ jobs:
       - name: Build and Deploy Backend
         run: |
           gcloud auth list
-          gcloud storage ls gs://$BUCKET/source
+          gcloud storage ls gs://gen-lang-client-0807475477_cloudbuild/source
           cd backend
           gcloud builds submit
 

@@ -70,7 +70,7 @@ Please create a comprehensive story plan that includes:
    - Dialogue (if applicable)
    - Visual elements needed
    - Emotional tone
-4. **Characters**: Main character descriptions (if applicable)
+4. **Characters**: For EVERY named character, provide a detailed visual character sheet with exact physical attributes so they can be drawn consistently across all scenes.
 5. **Narrative Arc**: Story progression (setup, conflict, climax, resolution)
 
 Format your response as a structured JSON object with the following schema:
@@ -84,10 +84,24 @@ Format your response as a structured JSON object with the following schema:
             "actions": ["action 1", "action 2"],
             "dialogue": "Optional dialogue",
             "visual_elements": ["element 1", "element 2"],
-            "emotional_tone": "tone"
+            "emotional_tone": "tone",
+            "characters_in_scene": ["Character Name 1", "Character Name 2"]
         }}
     ],
-    "character_descriptions": ["Character 1 description", "Character 2 description"],
+    "character_sheets": [
+        {{
+            "name": "Character Name",
+            "role": "protagonist/antagonist/supporting",
+            "skin_tone": "e.g. light peach, medium brown, dark brown, olive",
+            "hair": "e.g. short curly black hair",
+            "eyes": "e.g. round brown eyes",
+            "clothing": "e.g. red hoodie, blue jeans, white sneakers",
+            "distinctive_features": "e.g. freckles on nose, always wears a yellow backpack",
+            "body_type": "e.g. small child, tall adult, chubby toddler",
+            "age_appearance": "e.g. looks about 8 years old"
+        }}
+    ],
+    "character_descriptions": ["Character 1 summary", "Character 2 summary"],
     "narrative_arc": {{
         "setup": "Setup description",
         "conflict": "Conflict description",
@@ -119,6 +133,7 @@ Format your response as a structured JSON object with the following schema:
                     outline=plan_data.get("outline", []),
                     scenes=plan_data.get("scenes", []),
                     character_descriptions=plan_data.get("character_descriptions"),
+                    character_sheets=plan_data.get("character_sheets"),
                     visual_style=plan_data.get("visual_style", request.style or "modern"),
                     narrative_arc=plan_data.get("narrative_arc", {})
                 )

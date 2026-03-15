@@ -86,5 +86,6 @@ class StoryPlan(BaseModel):
     outline: List[str]
     scenes: List[Dict[str, Any]]
     character_descriptions: Optional[List[str]] = None
+    character_sheets: Optional[List[Dict[str, Any]]] = None
     visual_style: str
     narrative_arc: Dict[str, str]

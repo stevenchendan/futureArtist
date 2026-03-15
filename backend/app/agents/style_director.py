@@ -37,6 +37,7 @@ class StyleDirectorAgent:
             "visual_style": plan.visual_style,
             "color_palette": self._generate_color_palette(request, plan),
             "typography": self._select_typography(request.story_type),
+            "character_sheets": plan.character_sheets or [],
             "visual_consistency": {
                 "character_designs": self._create_character_design_rules(plan),
                 "environment_rules": self._create_environment_rules(plan),

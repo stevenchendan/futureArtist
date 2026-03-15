@@ -76,6 +76,10 @@ class ImageGeneratorAgent:
         visual_elements = ", ".join(scene.get("visual_elements", []))
         style = style_guide.get("visual_style", "modern")
         colors = self._describe_palette(style_guide.get("color_palette", []))
+        character_ref = self._build_character_reference(
+            scene.get("characters_in_scene", []),
+            style_guide.get("character_sheets", [])
+        )
 
         prompt = f"""
 Create an illustration for this scene:
@@ -85,12 +89,39 @@ Visual Elements: {visual_elements}
 Style: {style}
 Color Mood: {colors}
 Emotional Tone: {scene.get('emotional_tone', 'neutral')}
-
+{character_ref}
 The image should be {style} style and include: {visual_elements}.
-Maintain consistency with the established visual style.
+Every character MUST match their character reference exactly — same skin tone, hair, clothing, and features as specified. Do not deviate from the character reference.
 Do not include any text, labels, color swatches, or hex codes in the image.
 """
         return prompt.strip()
+
+    def _build_character_reference(
+        self, characters_in_scene: list, character_sheets: list
+    ) -> str:
+        """Build a character reference block for consistent character appearance"""
+        if not character_sheets:
+            return ""
+
+        # Filter to only characters in this scene, or use all if not specified
+        if characters_in_scene:
+            sheets = [s for s in character_sheets if s.get("name", "") in characters_in_scene]
+        else:
+            sheets = character_sheets
+
+        if not sheets:
+            return ""
+
+        lines = ["\nCHARACTER REFERENCE (draw exactly as described, do not change):"]
+        for s in sheets:
+            lines.append(
+                f"- {s.get('name', 'Character')}: {s.get('age_appearance', '')}, "
+                f"{s.get('body_type', '')}, skin tone: {s.get('skin_tone', '')}, "
+                f"hair: {s.get('hair', '')}, eyes: {s.get('eyes', '')}, "
+                f"wearing: {s.get('clothing', '')}, "
+                f"distinctive features: {s.get('distinctive_features', '')}"
+            )
+        return "\n".join(lines) + "\n"
 
     def _describe_palette(self, palette: list) -> str:
         """Convert hex color codes to descriptive color language for the prompt"""

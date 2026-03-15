@@ -243,3 +243,19 @@ Kuan Yu
 ## Acknowledgments
 
 Built for the Gemini Live Agent Challenge 2026 - Creative Storyteller Track
+
+
+# Create service account
+gcloud services enable aiplatform.googleapis.com run.googleapis.com storage.googleapis.com
+gcloud iam service-accounts create future-artist-sa
+gcloud projects add-iam-policy-binding ${GOOGLE_CLOUD_PROJECT} \
+    --member="serviceAccount:future-artist-sa@${GOOGLE_CLOUD_PROJECT}.iam.gserviceaccount.com" \
+    --role="roles/aiplatform.user"
+
+# Deploy backend
+cd backend
+cloud run deploy futureartist-backend --source . --region us-central1 --allow-unauthenticated --service-account future-artist-sa@gen-lang-client-0807475477.iam.gserviceaccount.com
+
+# Deploy frontend
+cd frontend
+cloud run deploy futureartist-frontend --source . --region us-central1 --allow-unauthenticated --service-account future-artist-sa@gen-lang-client-0807475477.iam.gserviceaccount.com

@@ -32,12 +32,8 @@ jobs:
 
       - name: Build and Deploy Backend
         run: |
-          gcloud run deploy futureartist-backend \
-            --source ./backend \
-            --region $REGION \
-            --platform managed \
-            --allow-unauthenticated \
-            --set-env-vars="GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}"
+          cd backend
+          gcloud builds submit
 
   deploy-frontend:
     name: Deploy Frontend
@@ -69,12 +65,8 @@ jobs:
 
       - name: Build and Deploy Frontend
         run: |
-          gcloud run deploy futureartist-frontend \
-            --source ./frontend \
-            --region $REGION \
-            --platform managed \
-            --allow-unauthenticated \
-            --set-env-vars="NEXT_PUBLIC_API_URL=${{ steps.backend.outputs.url }}"
+          cd frontend
+          gcloud builds submit --substitutions=_BACKEND_URL="${{ steps.backend.outputs.url }}"
 
       - name: Get Frontend URL
         run: |

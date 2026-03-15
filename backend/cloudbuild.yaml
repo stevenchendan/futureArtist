@@ -7,7 +7,6 @@ steps:
       - '-t'
       - 'gcr.io/$PROJECT_ID/futureartist-backend:latest'
       - '.'
-    dir: 'backend'
 
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'

@@ -38,7 +38,8 @@ gcloud services enable \
     aiplatform.googleapis.com \
     generativelanguage.googleapis.com \
     storage.googleapis.com \
-    secretmanager.googleapis.com
+    secretmanager.googleapis.com \
+    cloudresourcemanager.googleapis.com
 
 # Create service account
 echo -e "\n${GREEN}Creating service account...${NC}"
@@ -63,6 +64,28 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 gcloud projects add-iam-policy-binding $PROJECT_ID \
     --member="serviceAccount:$SA_EMAIL" \
     --role="roles/secretmanager.secretAccessor"
+
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member="serviceAccount:$SA_EMAIL" \
+    --role="roles/cloudbuild.serviceAgent"
+
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member="serviceAccount:$SA_EMAIL" \
+    --role="roles/serviceusage.serviceUsageConsumer"
+
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member="serviceAccount:$SA_EMAIL" \
+    --role="roles/artifactregistry.writer"
+
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member="serviceAccount:$SA_EMAIL" \
+    --role="roles/run.admin"
+
+PROJECT_NUMBER=$(gcloud projects describe $(gcloud config get-value project) --format="value(projectNumber)")
+gcloud iam service-accounts add-iam-policy-binding \
+    $PROJECT_NUMBER-compute@developer.gserviceaccount.com \
+    --member="serviceAccount:$SA_EMAIL" \
+    --role="roles/iam.serviceAccountUser"
 
 # Create storage bucket
 echo -e "\n${GREEN}Creating Cloud Storage bucket...${NC}"

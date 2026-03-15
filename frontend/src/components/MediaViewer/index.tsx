@@ -5,23 +5,36 @@ import { motion, AnimatePresence } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
 import type { MediaContent } from '@/lib/types'
 
+const TONE_SETTINGS: Record<string, { rate: number; pitch: number; label: string }> = {
+  playful:      { rate: 1.15, pitch: 1.4,  label: 'Playful' },
+  neutral:      { rate: 1.0,  pitch: 1.0,  label: 'Neutral' },
+  professional: { rate: 0.95, pitch: 0.85, label: 'Professional' },
+  inspiring:    { rate: 1.05, pitch: 1.15, label: 'Inspiring' },
+  suspenseful:  { rate: 0.9,  pitch: 0.75, label: 'Suspenseful' },
+  serious:      { rate: 0.88, pitch: 0.8,  label: 'Serious' },
+}
+
 interface MediaViewerProps {
   content: MediaContent[]
   isGenerating: boolean
+  tone?: string
 }
 
-function AudioPlayer({ text }: { text: string }) {
+function AudioPlayer({ text, tone }: { text: string; tone?: string }) {
   const [speaking, setSpeaking] = useState(false)
+  const toneConfig = TONE_SETTINGS[tone ?? 'neutral'] ?? TONE_SETTINGS.neutral
 
   const play = useCallback(() => {
     if (!text) return
     window.speechSynthesis.cancel()
     const utterance = new SpeechSynthesisUtterance(text)
+    utterance.rate = toneConfig.rate
+    utterance.pitch = toneConfig.pitch
     utterance.onstart = () => setSpeaking(true)
     utterance.onend = () => setSpeaking(false)
     utterance.onerror = () => setSpeaking(false)
     window.speechSynthesis.speak(utterance)
-  }, [text])
+  }, [text, toneConfig])
 
   const stop = useCallback(() => {
     window.speechSynthesis.cancel()
@@ -62,12 +75,12 @@ function AudioPlayer({ text }: { text: string }) {
           </div>
         )}
       </div>
-      <p className="text-xs text-gray-500 mt-2 italic">Reads the story text above</p>
+      <p className="text-xs text-gray-500 mt-2 italic">Tone: {toneConfig.label} · Reads the story text above</p>
     </div>
   )
 }
 
-export default function MediaViewer({ content, isGenerating }: MediaViewerProps) {
+export default function MediaViewer({ content, isGenerating, tone }: MediaViewerProps) {
   return (
     <div className="space-y-6">
       <AnimatePresence>
@@ -105,7 +118,7 @@ export default function MediaViewer({ content, isGenerating }: MediaViewerProps)
               const fullText = typeof prevText?.content === 'string'
                 ? prevText.content
                 : prevText?.content?.text ?? item.content?.narration_text ?? ''
-              return <AudioPlayer text={fullText} />
+              return <AudioPlayer text={fullText} tone={tone} />
             })()}
 
             {item.type === 'video' && (

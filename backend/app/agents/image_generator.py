@@ -68,13 +68,46 @@ class ImageGeneratorAgent:
         }
 
 
+    STYLE_INSTRUCTIONS = {
+        "cartoon": (
+            "2D cartoon illustration style. "
+            "Bold black outlines, flat solid colors, cel-shaded with no photorealism. "
+            "Exaggerated, expressive character proportions (big eyes, round heads). "
+            "Bright saturated colors, simple clean backgrounds. "
+            "Lighting: flat and bright — no complex shadows or gradients."
+        ),
+        "realistic": (
+            "Photorealistic digital painting style. "
+            "Naturalistic proportions, detailed textures, and lifelike skin. "
+            "Soft natural lighting with realistic shadows and highlights. "
+            "Rich depth of field, cinematic composition. "
+            "High detail on faces, clothing, and environment."
+        ),
+        "minimalist": (
+            "Flat minimalist illustration style. "
+            "Clean geometric shapes, very limited detail, generous negative space. "
+            "Maximum 3 colors used in the entire image. "
+            "No outlines or thin hairline strokes only. "
+            "Soft ambient lighting — subtle and even. "
+            "Simple, iconic representations of subjects."
+        ),
+        "modern": (
+            "Contemporary digital illustration style. "
+            "Semi-flat design with subtle drop shadows and soft gradients. "
+            "Polished, professional look with clean lines. "
+            "Balanced contrast lighting — not too dramatic, not flat. "
+            "Smooth color transitions, modern color palette, refined composition."
+        ),
+    }
+
     def _build_image_prompt(
         self, scene: Dict[str, Any], style_guide: Dict[str, Any]
     ) -> str:
         """Build detailed prompt for image generation"""
 
         visual_elements = ", ".join(scene.get("visual_elements", []))
-        style = style_guide.get("visual_style", "modern")
+        style_key = style_guide.get("visual_style", "modern")
+        style_instructions = self.STYLE_INSTRUCTIONS.get(style_key, self.STYLE_INSTRUCTIONS["modern"])
         colors = self._describe_palette(style_guide.get("color_palette", []))
         character_ref = self._build_character_reference(
             scene.get("characters_in_scene", []),
@@ -86,11 +119,12 @@ Create an illustration for this scene:
 
 Scene: {scene.get('description', '')}
 Visual Elements: {visual_elements}
-Style: {style}
 Color Mood: {colors}
 Emotional Tone: {scene.get('emotional_tone', 'neutral')}
 {character_ref}
-The image should be {style} style and include: {visual_elements}.
+RENDERING STYLE: {style_instructions}
+
+Draw the image in the above rendering style. Include: {visual_elements}.
 Every character MUST match their character reference exactly — same skin tone, hair, clothing, and features as specified. Do not deviate from the character reference.
 Do not include any text, labels, color swatches, or hex codes in the image.
 """

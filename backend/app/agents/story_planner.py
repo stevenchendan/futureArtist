@@ -41,6 +41,65 @@ class StoryPlannerAgent:
         logger.info(f"Story plan created: {plan.title}")
         return plan
 
+    AUDIENCE_CONTEXT = {
+        "children": """AUDIENCE — Young children (ages 4–10):
+- Keep scene descriptions short and action-focused (what happens, not complex feelings)
+- Characters should have simple, clear motivations (hungry, scared, curious, happy)
+- Avoid scenes with conflict that is scary or violent; keep challenges gentle
+- Visual elements: bright, simple, expressive — animals, toys, nature, magic
+- Each scene should end on a clear, satisfying note a child can understand""",
+
+        "adults": """AUDIENCE — Adults:
+- Scenes can have emotional complexity, ambiguity, and depth
+- Characters can have layered motivations, flaws, and inner conflict
+- Subplots and nuance are welcome
+- Visual elements can be sophisticated, atmospheric, or realistic
+- Pacing can include slower reflective moments""",
+
+        "professionals": """AUDIENCE — Professionals:
+- Scene descriptions should be concise and purposeful — no filler
+- Characters are competent people facing credible challenges
+- Focus on stakes, decisions, and outcomes
+- Visual elements: clean, credible, business-appropriate settings
+- Each scene should have a clear purpose tied to the main message""",
+
+        "general": """AUDIENCE — General (all ages, all backgrounds):
+- Keep concepts accessible and universally relatable
+- Characters face challenges anyone can empathize with
+- Visual elements: inviting, clear, not niche or culture-specific
+- Balance emotional appeal with clarity""",
+    }
+
+    TYPE_CONTEXT = {
+        "storybook": """This is a CHILDREN'S STORYBOOK.
+- Structure scenes as classic story beats: introduction → adventure/challenge → resolution → lesson
+- Characters should be relatable, expressive, and have clear personalities
+- Each scene should advance the story with a small emotional beat
+- Visual elements should be whimsical, colorful, and imaginative
+- The narrative arc should feel warm and satisfying""",
+
+        "marketing": """This is a MARKETING CAMPAIGN / BRAND STORY.
+- Structure scenes as: problem/pain point → brand solution introduction → transformation → call to action
+- Focus on customer journey and emotional transformation
+- Each scene should build desire and trust
+- Visual elements should feel aspirational, clean, and on-brand
+- Characters represent the target customer persona""",
+
+        "educational": """This is an EDUCATIONAL LESSON / EXPLAINER.
+- Structure scenes as: hook/question → concept introduction → worked example → practice/reflection → summary
+- Each scene should teach one clear concept or fact
+- Use characters as learners or guides (e.g. teacher + student)
+- Visual elements should illustrate concepts clearly (diagrams, demonstrations, settings)
+- End with a key takeaway or discussion question per scene""",
+
+        "social": """This is SOCIAL MEDIA CONTENT (short-form posts / reels).
+- Structure scenes as punchy stand-alone moments — each scene is its own micro-story
+- Scenes should be very short and high-impact
+- Lead with a scroll-stopping hook in each scene
+- Visual elements should be bold, eye-catching, and shareable
+- Characters and actions should be relatable and culturally relevant""",
+    }
+
     def _build_planning_prompt(self, request: StoryRequest) -> str:
         """Build the prompt for story planning"""
 
@@ -49,6 +108,9 @@ class StoryPlannerAgent:
             "medium": "6-10 scenes",
             "long": "11-15 scenes"
         }
+
+        type_context = self.TYPE_CONTEXT.get(request.story_type, self.TYPE_CONTEXT["storybook"])
+        audience_context = self.AUDIENCE_CONTEXT.get(request.target_audience, self.AUDIENCE_CONTEXT["general"])
 
         prompt = f"""
 You are a creative story planner. Create a detailed story plan based on the following requirements:
@@ -59,6 +121,10 @@ You are a creative story planner. Create a detailed story plan based on the foll
 **Tone**: {request.tone}
 **Length**: {length_map.get(request.length, "medium")}
 **Visual Style**: {request.style}
+
+{type_context}
+
+{audience_context}
 
 Please create a comprehensive story plan that includes:
 

@@ -167,7 +167,6 @@ export default function ControlPanel({ onGenerate, isGenerating }: ControlPanelP
               { value: 'text', label: 'Text' },
               { value: 'images', label: 'Images' },
               { value: 'audio', label: 'Audio' },
-              { value: 'video', label: 'Video' },
             ].map((media) => (
               <label key={media.value} className="flex items-center">
                 <input

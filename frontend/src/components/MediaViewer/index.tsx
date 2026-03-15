@@ -23,7 +23,7 @@ export default function MediaViewer({ content, isGenerating }: MediaViewerProps)
           >
             {item.type === 'text' && (
               <div className="prose max-w-none">
-                <ReactMarkdown>{item.content as string}</ReactMarkdown>
+                <ReactMarkdown>{typeof item.content === 'string' ? item.content : item.content?.text ?? ''}</ReactMarkdown>
               </div>
             )}
 

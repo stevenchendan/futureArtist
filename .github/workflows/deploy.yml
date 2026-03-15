@@ -32,6 +32,8 @@ jobs:
 
       - name: Build and Deploy Backend
         run: |
+          gcloud auth list
+          gcloud storage ls gs://$BUCKET/source
           cd backend
           gcloud builds submit
 

@@ -34,6 +34,8 @@ jobs:
         run: |
           gcloud auth list
           gcloud storage ls gs://gen-lang-client-0807475477_cloudbuild/source
+          echo "Test" > test.txt
+          gcloud storage cp test.txt gs://gen-lang-client-0807475477_cloudbuild/source/
           cd backend
           gcloud builds submit
 

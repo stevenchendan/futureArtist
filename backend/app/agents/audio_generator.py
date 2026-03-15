@@ -1,10 +1,13 @@
 """
 Audio Generator Agent
-Produces narration, sound effects, and background music
+Produces narration using Google Gemini TTS
 """
 
+import base64
 from typing import Dict, Any
 import structlog
+from google import genai
+from google.genai import types
 
 from app.adk.config import ADKConfig
 from app.models.story_request import StoryRequest
@@ -17,79 +20,71 @@ class AudioGeneratorAgent:
 
     def __init__(self, config: ADKConfig):
         self.config = config
+        self.client = genai.Client(api_key=config.gemini_api_key)
 
     async def generate_audio(
         self, scene: Dict[str, Any], request: StoryRequest
     ) -> Dict[str, Any]:
         """
-        Generate audio (narration, effects, music) for a scene
+        Generate narration audio for a scene using Gemini TTS
 
         Args:
             scene: Scene information from story plan
             request: Original story request
 
         Returns:
-            Dictionary with generated audio data
+            Dictionary with generated audio data (base64 PCM)
         """
         logger.info(f"Generating audio for scene {scene.get('scene_number', 0)}")
 
-        # Audio generation configuration
-        audio_config = self._build_audio_config(scene, request)
+        narration_text = scene.get("description", "")
+        voice_name = self._select_voice(request.target_audience)
 
-        # Placeholder - actual implementation would use Google Cloud Text-to-Speech
-        # or similar audio generation service
+        response = await self.client.aio.models.generate_content(
+            model="gemini-2.5-flash-preview-tts",
+            contents=narration_text,
+            config=types.GenerateContentConfig(
+                response_modalities=["AUDIO"],
+                speech_config=types.SpeechConfig(
+                    voice_config=types.VoiceConfig(
+                        prebuilt_voice_config=types.PrebuiltVoiceConfig(
+                            voice_name=voice_name
+                        )
+                    )
+                ),
+            ),
+        )
+
+        audio_data = response.candidates[0].content.parts[0].inline_data.data
+        audio_b64 = base64.b64encode(audio_data).decode("utf-8")
+
         return {
             "type": "audio",
             "data": {
                 "scene_number": scene.get("scene_number"),
-                "narration_text": scene.get("description"),
-                "audio_config": audio_config,
+                "narration_text": narration_text,
+                "audio_data": audio_b64,
+                "mime_type": "audio/wav",
                 "metadata": {
                     "tone": scene.get("emotional_tone"),
-                    "duration_estimate": self._estimate_duration(scene)
+                    "duration_estimate": self._estimate_duration(scene),
+                    "voice": voice_name,
                 }
             }
         }
 
-    def _build_audio_config(
-        self, scene: Dict[str, Any], request: StoryRequest
-    ) -> Dict[str, Any]:
-        """Build configuration for audio generation"""
-
-        return {
-            "voice_style": self._select_voice_style(request.target_audience),
-            "speaking_rate": "normal",
-            "pitch": "medium",
-            "effects": scene.get("audio_effects", []),
-            "background_music": self._select_background_music(
-                scene.get("emotional_tone", "neutral")
-            )
-        }
-
-    def _select_voice_style(self, target_audience: str) -> str:
-        """Select appropriate voice style based on audience"""
+    def _select_voice(self, target_audience: str) -> str:
+        """Select a Gemini TTS voice based on target audience"""
         voice_map = {
-            "children": "warm_friendly",
-            "adults": "professional_clear",
-            "professionals": "authoritative_confident",
-            "general": "neutral_engaging"
+            "children": "Kore",
+            "adults": "Charon",
+            "professionals": "Fenrir",
+            "general": "Aoede",
         }
-        return voice_map.get(target_audience, "neutral_engaging")
-
-    def _select_background_music(self, emotional_tone: str) -> str:
-        """Select background music based on emotional tone"""
-        music_map = {
-            "playful": "upbeat_cheerful",
-            "serious": "subtle_thoughtful",
-            "suspenseful": "tense_mysterious",
-            "inspiring": "uplifting_hopeful",
-            "neutral": "ambient_soft"
-        }
-        return music_map.get(emotional_tone, "ambient_soft")
+        return voice_map.get(target_audience, "Aoede")
 
     def _estimate_duration(self, scene: Dict[str, Any]) -> float:
-        """Estimate audio duration in seconds"""
-        # Rough estimate: ~150 words per minute
+        """Estimate audio duration in seconds (~150 words per minute)"""
         text = scene.get("description", "")
         word_count = len(text.split())
-        return (word_count / 150) * 60
+        return round((word_count / 150) * 60, 1)

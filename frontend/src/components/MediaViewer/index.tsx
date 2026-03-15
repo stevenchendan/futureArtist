@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
 import type { MediaContent } from '@/lib/types'
@@ -7,6 +8,63 @@ import type { MediaContent } from '@/lib/types'
 interface MediaViewerProps {
   content: MediaContent[]
   isGenerating: boolean
+}
+
+function AudioPlayer({ text }: { text: string }) {
+  const [speaking, setSpeaking] = useState(false)
+
+  const play = useCallback(() => {
+    if (!text) return
+    window.speechSynthesis.cancel()
+    const utterance = new SpeechSynthesisUtterance(text)
+    utterance.onstart = () => setSpeaking(true)
+    utterance.onend = () => setSpeaking(false)
+    utterance.onerror = () => setSpeaking(false)
+    window.speechSynthesis.speak(utterance)
+  }, [text])
+
+  const stop = useCallback(() => {
+    window.speechSynthesis.cancel()
+    setSpeaking(false)
+  }, [])
+
+  return (
+    <div className="bg-gray-100 rounded-lg p-4">
+      <p className="text-sm font-medium text-gray-700 mb-3">Audio Narration</p>
+      <div className="flex items-center space-x-3">
+        {!speaking ? (
+          <button
+            onClick={play}
+            className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium px-4 py-2 rounded-full transition-colors"
+          >
+            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            <span>Play</span>
+          </button>
+        ) : (
+          <button
+            onClick={stop}
+            className="flex items-center space-x-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-4 py-2 rounded-full transition-colors"
+          >
+            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M6 6h12v12H6z" />
+            </svg>
+            <span>Stop</span>
+          </button>
+        )}
+        {speaking && (
+          <div className="flex space-x-1 items-center">
+            <div className="w-1 h-4 bg-purple-500 rounded animate-bounce" style={{ animationDelay: '0s' }} />
+            <div className="w-1 h-6 bg-purple-500 rounded animate-bounce" style={{ animationDelay: '0.1s' }} />
+            <div className="w-1 h-3 bg-purple-500 rounded animate-bounce" style={{ animationDelay: '0.2s' }} />
+            <div className="w-1 h-5 bg-purple-500 rounded animate-bounce" style={{ animationDelay: '0.3s' }} />
+          </div>
+        )}
+      </div>
+      <p className="text-xs text-gray-500 mt-2 italic">Reads the story text above</p>
+    </div>
+  )
 }
 
 export default function MediaViewer({ content, isGenerating }: MediaViewerProps) {
@@ -39,33 +97,16 @@ export default function MediaViewer({ content, isGenerating }: MediaViewerProps)
               </div>
             )}
 
-            {item.type === 'audio' && (
-              <div className="bg-gray-100 rounded-lg p-4">
-                <div className="flex items-center space-x-4">
-                  <svg
-                    className="h-12 w-12 text-purple-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
-                    />
-                  </svg>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-700">Audio Preview</p>
-                    {item.metadata?.narration_text && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        {item.metadata.narration_text.substring(0, 100)}...
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
+            {item.type === 'audio' && (() => {
+              const prevText = content
+                .slice(0, index)
+                .reverse()
+                .find((c) => c.type === 'text')
+              const fullText = typeof prevText?.content === 'string'
+                ? prevText.content
+                : prevText?.content?.text ?? item.content?.narration_text ?? ''
+              return <AudioPlayer text={fullText} />
+            })()}
 
             {item.type === 'video' && (
               <div className="bg-gray-100 rounded-lg p-4">

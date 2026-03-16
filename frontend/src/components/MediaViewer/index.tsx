@@ -75,7 +75,7 @@ function AudioPlayer({ text, tone }: { text: string; tone?: string }) {
           </div>
         )}
       </div>
-      <p className="text-xs text-gray-500 mt-2 italic">Tone: {toneConfig.label} · Reads the story text above</p>
+      <p className="text-xs text-gray-500 mt-2 italic">Tone: {toneConfig.label}</p>
     </div>
   )
 }

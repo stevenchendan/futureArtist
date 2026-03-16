@@ -9,7 +9,7 @@ Future Artist is a multimodal AI storytelling platform. Give it a topic, a tone,
 ---
 
 **Live demo**: [futureartist-frontend-226638196775.us-central1.run.app](https://futureartist-frontend-226638196775.us-central1.run.app)
-**Demo video**: _(add YouTube/Drive link — required by hackathon, max 4 min)_
+\_
 
 | Mode                 | What you get                                        |
 | -------------------- | --------------------------------------------------- |

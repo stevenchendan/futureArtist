@@ -24,9 +24,54 @@ Future Artist is a multimodal AI storytelling platform. Give it a topic, a tone,
 
 ---
 
-## How It Works
+## System Architecture
 
-A multi-agent pipeline coordinates story generation:
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        Google Cloud Run                         │
+│                                                                 │
+│  ┌──────────────────────┐        ┌───────────────────────────┐  │
+│  │   Next.js Frontend   │        │    FastAPI Backend         │  │
+│  │   (port 3000)        │        │    (port 8000)             │  │
+│  │                      │        │                            │  │
+│  │  StoryCreator UI     │◄──────►│  /api/story (REST)         │  │
+│  │  ControlPanel        │        │  /ws/story  (WebSocket)    │  │
+│  │  MediaViewer         │        │                            │  │
+│  │  AudioPlayer         │        │  ┌─────────────────────┐  │  │
+│  └──────────────────────┘        │  │  Orchestrator Agent  │  │  │
+│         ▲  WebSocket stream      │  │  (Google ADK)        │  │  │
+│         │  chunks in real-time   │  └──────────┬──────────┘  │  │
+│         └──────────────────────────────────────┘             │  │
+│                                  │           │                │  │
+│                                  │    ┌──────▼──────────────┐ │  │
+│                                  │    │  Multi-Agent Pipeline│ │  │
+│                                  │    │                      │ │  │
+│                                  │    │ Story Planner Agent  │ │  │
+│                                  │    │ Style Director Agent │ │  │
+│                                  │    │ Text Generator Agent │ │  │
+│                                  │    │ Image Generator Agent│ │  │
+│                                  │    │ Audio Generator Agent│ │  │
+│                                  │    └──────────┬───────────┘ │  │
+└─────────────────────────────────────────────────│───────────────┘
+                                                   │
+                                    ┌──────────────▼──────────────┐
+                                    │        Google Gemini API     │
+                                    │                              │
+                                    │  gemini-2.5-flash            │
+                                    │  ├─ Text generation          │
+                                    │  └─ Image generation         │
+                                    └─────────────────────────────┘
+```
+
+**Request flow:**
+1. User fills the form and clicks Generate
+2. Frontend opens a **WebSocket** connection to the backend
+3. Backend **Orchestrator** (Google ADK) kicks off the agent pipeline
+4. Each agent calls **Gemini API** and streams results back through the Orchestrator
+5. Backend sends chunks over WebSocket as they arrive — `text`, `image`, `audio` typed
+6. Frontend renders each chunk inline as it streams — story builds in real time
+
+## Agent Pipeline
 
 ```
 User Request
@@ -34,10 +79,8 @@ User Request
         └─► Style Director  — visual style guide, color palette, character consistency rules
             └─► Text Generator  — scene-by-scene story text (streamed)
             └─► Image Generator — scene illustrations via Gemini image generation (streamed)
-            └─► Audio Generator — narration metadata; browser reads full text via Web Speech API
+            └─► Audio Generator — narration config; browser reads full text via Web Speech API
 ```
-
-All results stream to the frontend over WebSocket — content appears progressively as each scene completes.
 
 ---
 

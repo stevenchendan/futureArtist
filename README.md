@@ -8,23 +8,20 @@ Future Artist is a multimodal AI storytelling platform. Give it a topic, a tone,
 
 ---
 
-## Demo
-
-<!-- Add a GIF or screenshot here before submission -->
-<!-- ![Demo](docs/demo.gif) -->
-
 **Live demo**: [futureartist-frontend-226638196775.us-central1.run.app](https://futureartist-frontend-226638196775.us-central1.run.app)
-**Demo video**: *(add YouTube/Drive link — required by hackathon, max 4 min)*
+**Demo video**: _(add YouTube/Drive link — required by hackathon, max 4 min)_
 
-| Mode | What you get |
-|------|-------------|
+| Mode                 | What you get                                        |
+| -------------------- | --------------------------------------------------- |
 | Children's Storybook | Cartoon illustrations + playful narration per scene |
-| Marketing Campaign | Brand visuals + inspiring structured copy |
-| Educational | Clean diagrams + professional tone |
+| Marketing Campaign   | Brand visuals + inspiring structured copy           |
+| Educational          | Clean diagrams + professional tone                  |
 
 ---
 
 ## System Architecture
+
+![System Architecture](docs/system-diagram.png)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -64,6 +61,7 @@ Future Artist is a multimodal AI storytelling platform. Give it a topic, a tone,
 ```
 
 **Request flow:**
+
 1. User fills the form and clicks Generate
 2. Frontend opens a **WebSocket** connection to the backend
 3. Backend **Orchestrator** (Google ADK) kicks off the agent pipeline
@@ -86,15 +84,15 @@ User Request
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| AI Model | Gemini 2.5 Flash (text + image generation) |
-| Agent Framework | Google ADK (Agent Development Kit) |
-| Backend | Python 3.11, FastAPI, Uvicorn |
-| Frontend | Next.js 14, TypeScript, Tailwind CSS |
-| Streaming | WebSocket (real-time chunk delivery) |
-| TTS | Web Speech API (browser-native, tone-matched) |
-| Hosting | Google Cloud Run (us-central1) |
+| Layer           | Technology                                    |
+| --------------- | --------------------------------------------- |
+| AI Model        | Gemini 2.5 Flash (text + image generation)    |
+| Agent Framework | Google ADK (Agent Development Kit)            |
+| Backend         | Python 3.11, FastAPI, Uvicorn                 |
+| Frontend        | Next.js 14, TypeScript, Tailwind CSS          |
+| Streaming       | WebSocket (real-time chunk delivery)          |
+| TTS             | Web Speech API (browser-native, tone-matched) |
+| Hosting         | Google Cloud Run (us-central1)                |
 
 ---
 
@@ -169,40 +167,40 @@ Open **[http://localhost:3000](http://localhost:3000)**
 
 ### Scenario A — Children's Storybook
 
-| Field | Value |
-|-------|-------|
-| Story Topic | `A brave little robot who gets lost in a magical forest` |
-| Story Type | `Storybook` |
-| Tone | `Playful` |
-| Target Audience | `Children` |
-| Visual Style | `Cartoon` |
-| Include | Text + Images + Audio |
+| Field           | Value                                                    |
+| --------------- | -------------------------------------------------------- |
+| Story Topic     | `A brave little robot who gets lost in a magical forest` |
+| Story Type      | `Storybook`                                              |
+| Tone            | `Playful`                                                |
+| Target Audience | `Children`                                               |
+| Visual Style    | `Cartoon`                                                |
+| Include         | Text + Images + Audio                                    |
 
 Expected: Multi-scene illustrated storybook with cartoon images inline, audio player per scene, and Reading Mode button.
 
 ### Scenario B — Marketing Campaign
 
-| Field | Value |
-|-------|-------|
-| Story Topic | `Launching a sustainable coffee brand for eco-conscious millennials` |
-| Story Type | `Marketing` |
-| Tone | `Inspiring` |
-| Target Audience | `Young Adults` |
-| Visual Style | `Modern` |
-| Include | Text + Images |
+| Field           | Value                                                                |
+| --------------- | -------------------------------------------------------------------- |
+| Story Topic     | `Launching a sustainable coffee brand for eco-conscious millennials` |
+| Story Type      | `Marketing`                                                          |
+| Tone            | `Inspiring`                                                          |
+| Target Audience | `Young Adults`                                                       |
+| Visual Style    | `Modern`                                                             |
+| Include         | Text + Images                                                        |
 
 Expected: Structured marketing copy with on-brand visuals.
 
 ### Scenario C — Educational Explainer
 
-| Field | Value |
-|-------|-------|
-| Story Topic | `How the human immune system fights viruses` |
-| Story Type | `Educational` |
-| Tone | `Professional` |
-| Target Audience | `General Public` |
-| Visual Style | `Minimalist` |
-| Include | Text + Images |
+| Field           | Value                                        |
+| --------------- | -------------------------------------------- |
+| Story Topic     | `How the human immune system fights viruses` |
+| Story Type      | `Educational`                                |
+| Tone            | `Professional`                               |
+| Target Audience | `General Public`                             |
+| Visual Style    | `Minimalist`                                 |
+| Include         | Text + Images                                |
 
 Expected: Clear, well-structured educational narrative with clean illustrations.
 
@@ -219,20 +217,20 @@ Expected: Clear, well-structured educational narrative with clean illustrations.
 
 ### Backend (`backend/.env`)
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `GEMINI_API_KEY` | **Yes** | — | Gemini API key from AI Studio |
-| `GEMINI_MODEL` | No | `gemini-2.5-flash` | Model to use |
-| `GOOGLE_CLOUD_PROJECT` | No | — | GCP project (only needed for Cloud deployment) |
-| `PORT` | No | `8000` | Server port |
-| `ALLOWED_ORIGINS` | No | `*` | CORS origins |
+| Variable               | Required | Default            | Description                                    |
+| ---------------------- | -------- | ------------------ | ---------------------------------------------- |
+| `GEMINI_API_KEY`       | **Yes**  | —                  | Gemini API key from AI Studio                  |
+| `GEMINI_MODEL`         | No       | `gemini-2.5-flash` | Model to use                                   |
+| `GOOGLE_CLOUD_PROJECT` | No       | —                  | GCP project (only needed for Cloud deployment) |
+| `PORT`                 | No       | `8000`             | Server port                                    |
+| `ALLOWED_ORIGINS`      | No       | `*`                | CORS origins                                   |
 
 ### Frontend (`frontend/.env.local`)
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | Backend HTTP URL |
-| `NEXT_PUBLIC_WS_URL` | `ws://localhost:8000` | Backend WebSocket URL |
+| Variable              | Default                 | Description           |
+| --------------------- | ----------------------- | --------------------- |
+| `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | Backend HTTP URL      |
+| `NEXT_PUBLIC_WS_URL`  | `ws://localhost:8000`   | Backend WebSocket URL |
 
 ---
 
@@ -283,7 +281,7 @@ Steven (Liang) Chen · Kuan Yu
 
 Built for the **Gemini Live Agent Challenge 2026** — Creative Storyteller Track
 
-*This content was created for the purposes of entering the Gemini Live Agent Challenge hackathon. #GeminiLiveAgentChallenge*
+_This content was created for the purposes of entering the Gemini Live Agent Challenge hackathon. #GeminiLiveAgentChallenge_
 
 ---
 

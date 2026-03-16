@@ -1,155 +1,210 @@
-# Future Artist - Creative Storyteller AI Agent
+# Future Artist — Creative Storyteller AI Agent
 
-## Gemini Live Agent Challenge 2026 Submission
+> Gemini Live Agent Challenge 2026 · Track: Creative Storyteller ✍️
 
-A multimodal AI storytelling platform that leverages Gemini's interleaved output capabilities to create rich, mixed-media narratives combining text, images, audio, and video in a single, fluid output stream.
+Future Artist is a multimodal AI storytelling platform. Give it a topic, a tone, and a target audience — it generates a complete story with text, AI-illustrated images, and narrated audio streamed in real time.
 
-## Track: Creative Storyteller ✍️
+**Built with Google Gemini 2.5 Flash · Google ADK · FastAPI · Next.js 14**
 
-**Focus**: Multimodal Storytelling with Interleaved Output
+---
 
-## Overview
+## Demo
 
-Future Artist is an AI-powered creative director that seamlessly weaves together multiple media types to generate:
-- Interactive storybooks with inline generated illustrations
-- Marketing assets (copy + visuals + video) in one cohesive flow
-- Educational content with narration and diagrams
-- Social media content packages (captions + images + hashtags)
+<!-- Add a GIF or screenshot here before submission -->
+<!-- ![Demo](docs/demo.gif) -->
 
-## Architecture
+**Live demo**: [futureartist-frontend-226638196775.us-central1.run.app](https://futureartist-frontend-226638196775.us-central1.run.app)
+**Demo video**: *(add YouTube/Drive link — required by hackathon, max 4 min)*
+
+| Mode | What you get |
+|------|-------------|
+| Children's Storybook | Cartoon illustrations + playful narration per scene |
+| Marketing Campaign | Brand visuals + inspiring structured copy |
+| Educational | Clean diagrams + professional tone |
+
+---
+
+## How It Works
+
+A multi-agent pipeline coordinates story generation:
 
 ```
-├── backend/                    # Python/FastAPI with ADK
-│   ├── app/
-│   │   ├── adk/               # Agent Development Kit integration
-│   │   │   ├── main.py        # ADK entry point
-│   │   │   └── config.py      # ADK configuration
-│   │   ├── agents/            # Specialized agents
-│   │   │   ├── orchestrator.py    # Main orchestration agent
-│   │   │   ├── story_planner.py   # Story structure & narrative arc
-│   │   │   ├── text_generator.py  # Text content generation
-│   │   │   ├── image_generator.py # Image creation & prompts
-│   │   │   ├── audio_generator.py # Audio/narration generation
-│   │   │   ├── video_generator.py # Video creation
-│   │   │   └── style_director.py  # Visual consistency & branding
-│   │   ├── api/               # FastAPI routes
-│   │   ├── models/            # Data models
-│   │   ├── services/          # Business logic
-│   │   └── utils/             # Helper functions
-│   ├── requirements.txt
-│   ├── Dockerfile
-│   └── cloudbuild.yaml        # Cloud Build configuration
-│
-├── frontend/                   # React/Next.js
-│   ├── src/
-│   │   ├── app/               # Next.js app directory
-│   │   ├── components/        # React components
-│   │   │   ├── StoryCreator/  # Main story creation interface
-│   │   │   ├── MediaViewer/   # Multimodal content display
-│   │   │   ├── ControlPanel/  # Story customization controls
-│   │   │   └── ExportTools/   # Export & share functionality
-│   │   ├── hooks/             # Custom React hooks
-│   │   ├── lib/               # Utilities
-│   │   └── styles/            # CSS/Tailwind styles
-│   ├── public/
-│   ├── package.json
-│   ├── Dockerfile
-│   └── next.config.js
-│
-├── infrastructure/             # Infrastructure as Code
-│   ├── terraform/             # Terraform configurations
-│   └── scripts/               # Deployment scripts
-│
-├── docs/                       # Documentation
-│   ├── architecture.md
-│   ├── api.md
-│   └── deployment.md
-│
-└── .github/
-    └── workflows/             # CI/CD pipelines
+User Request
+    └─► Story Planner      — narrative structure, scene breakdown, character bios
+        └─► Style Director  — visual style guide, color palette, character consistency rules
+            └─► Text Generator  — scene-by-scene story text (streamed)
+            └─► Image Generator — scene illustrations via Gemini image generation (streamed)
+            └─► Audio Generator — narration metadata; browser reads full text via Web Speech API
 ```
+
+All results stream to the frontend over WebSocket — content appears progressively as each scene completes.
+
+---
 
 ## Tech Stack
 
-### Mandatory Technologies ✅
+| Layer | Technology |
+|-------|-----------|
+| AI Model | Gemini 2.5 Flash (text + image generation) |
+| Agent Framework | Google ADK (Agent Development Kit) |
+| Backend | Python 3.11, FastAPI, Uvicorn |
+| Frontend | Next.js 14, TypeScript, Tailwind CSS |
+| Streaming | WebSocket (real-time chunk delivery) |
+| TTS | Web Speech API (browser-native, tone-matched) |
+| Hosting | Google Cloud Run (us-central1) |
 
-- **Gemini Model**: Gemini 2.0 with native interleaved output
-- **Agent Framework**: Google ADK (Agent Development Kit)
-- **Google Cloud Services**:
-  - Cloud Run (Backend & Frontend hosting)
-  - Vertex AI (Gemini API integration)
-  - Cloud Storage (Media storage)
-  - Cloud Build (CI/CD)
-  - Secret Manager (API keys & credentials)
+---
 
-### Backend
-- Python 3.11+
-- FastAPI
-- Google GenAI SDK / ADK
-- Pydantic for data validation
-
-### Frontend
-- Next.js 14+ (React)
-- TypeScript
-- Tailwind CSS
-- Shadcn/ui components
-
-## Quick Start
+## Local Setup
 
 ### Prerequisites
 
 - Python 3.11+
 - Node.js 18+
-- Google Cloud SDK
-- Docker (for containerized deployment)
+- A Gemini API key — get one free at [aistudio.google.com/apikey](https://aistudio.google.com/apikey)
 
-### Local Development
+### 1. Clone
 
-#### Backend Setup
+```bash
+git clone https://github.com/stevenchendan/futureArtist.git
+cd futureArtist
+```
+
+### 2. Backend
 
 ```bash
 cd backend
+
+# Create and activate virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate        # macOS/Linux
+# venv\Scripts\activate         # Windows
+
+# Install dependencies
 pip install -r requirements.txt
 
-# Set environment variables
+# Configure environment
 cp .env.example .env
-# Edit .env with your credentials
+```
 
-# Run locally
+Open `backend/.env` and set your API key — this is the **only required change**:
+
+```env
+GEMINI_API_KEY=your-gemini-api-key-here
+```
+
+Start the backend:
+
+```bash
 python -m app.adk.main
 ```
 
-#### Frontend Setup
+Confirm it's running:
 
 ```bash
-cd frontend
+curl http://localhost:8000/health
+# → {"status":"healthy","services":{"gemini":"connected","storage":"connected"}}
+```
+
+### 3. Frontend
+
+Open a **new terminal** from the repo root:
+
+```bash
+cd futureArtist/frontend   # or just: cd ../frontend if you're still in backend/
 npm install
-
-# Set environment variables
-cp .env.local.example .env.local
-# Edit .env.local with your backend URL
-
-# Run development server
 npm run dev
 ```
 
-Visit `http://localhost:3000` to see the application.
+The frontend connects to `http://localhost:8000` by default. No `.env.local` changes needed.
 
-### Google Cloud Deployment
+Open **[http://localhost:3000](http://localhost:3000)**
 
-#### Option 1: Cloud Run (Recommended)
+---
+
+## Reproducible Test Scenarios
+
+### Scenario A — Children's Storybook
+
+| Field | Value |
+|-------|-------|
+| Story Topic | `A brave little robot who gets lost in a magical forest` |
+| Story Type | `Storybook` |
+| Tone | `Playful` |
+| Target Audience | `Children` |
+| Visual Style | `Cartoon` |
+| Include | Text + Images + Audio |
+
+Expected: Multi-scene illustrated storybook with cartoon images inline, audio player per scene, and Reading Mode button.
+
+### Scenario B — Marketing Campaign
+
+| Field | Value |
+|-------|-------|
+| Story Topic | `Launching a sustainable coffee brand for eco-conscious millennials` |
+| Story Type | `Marketing` |
+| Tone | `Inspiring` |
+| Target Audience | `Young Adults` |
+| Visual Style | `Modern` |
+| Include | Text + Images |
+
+Expected: Structured marketing copy with on-brand visuals.
+
+### Scenario C — Educational Explainer
+
+| Field | Value |
+|-------|-------|
+| Story Topic | `How the human immune system fights viruses` |
+| Story Type | `Educational` |
+| Tone | `Professional` |
+| Target Audience | `General Public` |
+| Visual Style | `Minimalist` |
+| Include | Text + Images |
+
+Expected: Clear, well-structured educational narrative with clean illustrations.
+
+### What to Verify
+
+- [ ] Content streams progressively — text and images appear as each scene completes
+- [ ] Images match the scene and visual style selected
+- [ ] Audio player reads the full story text aloud with tone-matched rate/pitch
+- [ ] **Reading Mode** — distraction-free full-width reading view, exits cleanly
+
+---
+
+## Environment Variables
+
+### Backend (`backend/.env`)
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `GEMINI_API_KEY` | **Yes** | — | Gemini API key from AI Studio |
+| `GEMINI_MODEL` | No | `gemini-2.5-flash` | Model to use |
+| `GOOGLE_CLOUD_PROJECT` | No | — | GCP project (only needed for Cloud deployment) |
+| `PORT` | No | `8000` | Server port |
+| `ALLOWED_ORIGINS` | No | `*` | CORS origins |
+
+### Frontend (`frontend/.env.local`)
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | Backend HTTP URL |
+| `NEXT_PUBLIC_WS_URL` | `ws://localhost:8000` | Backend WebSocket URL |
+
+---
+
+## Google Cloud Deployment
 
 ```bash
-# Deploy backend
+# Backend
 cd backend
 gcloud run deploy futureartist-backend \
   --source . \
   --region us-central1 \
-  --allow-unauthenticated
+  --allow-unauthenticated \
+  --set-env-vars GEMINI_API_KEY=your-key,GEMINI_MODEL=gemini-2.5-flash
 
-# Deploy frontend
+# Frontend
 cd frontend
 gcloud run deploy futureartist-frontend \
   --source . \
@@ -157,105 +212,38 @@ gcloud run deploy futureartist-frontend \
   --allow-unauthenticated
 ```
 
-#### Option 2: Agent Engine
+---
 
-```bash
-# Deploy using ADK to Agent Engine
-cd backend
-adk deploy --project YOUR_PROJECT_ID
+## Project Structure
+
+```
+futureArtist/
+├── backend/
+│   └── app/
+│       ├── adk/            # ADK entry point & config
+│       ├── agents/         # Story Planner, Style Director, Text/Image/Audio Generators
+│       ├── api/            # FastAPI routes & WebSocket handler
+│       └── models/         # Pydantic data models
+└── frontend/
+    └── src/
+        └── components/
+            ├── StoryCreator/   # Main creation form
+            ├── MediaViewer/    # Streaming content renderer + AudioPlayer
+            └── ControlPanel/   # Style, tone, audience controls
 ```
 
-## Agent Architecture
+---
 
-### 1. Orchestrator Agent
-Coordinates all specialized agents and manages the interleaved output stream.
+## Team
 
-### 2. Story Planner Agent
-Develops narrative structure, character arcs, and scene breakdown.
+Steven (Liang) Chen · Kuan Yu
 
-### 3. Text Generator Agent
-Creates compelling narrative text, dialogue, and descriptions.
+Built for the **Gemini Live Agent Challenge 2026** — Creative Storyteller Track
 
-### 4. Image Generator Agent
-Generates contextual illustrations using Gemini's image generation.
+*This content was created for the purposes of entering the Gemini Live Agent Challenge hackathon. #GeminiLiveAgentChallenge*
 
-### 5. Audio Generator Agent
-Produces narration, sound effects, and background music.
-
-### 6. Video Generator Agent
-Creates video sequences and animations from storyboards.
-
-### 7. Style Director Agent
-Ensures visual and tonal consistency across all generated media.
-
-## Environment Variables
-
-### Backend (.env)
-```
-GOOGLE_CLOUD_PROJECT=your-project-id
-GEMINI_API_KEY=your-api-key
-GOOGLE_APPLICATION_CREDENTIALS=path/to/service-account.json
-CLOUD_STORAGE_BUCKET=your-bucket-name
-PORT=8000
-```
-
-### Frontend (.env.local)
-```
-NEXT_PUBLIC_API_URL=http://localhost:8000
-NEXT_PUBLIC_APP_NAME=Future Artist
-```
-
-## Development Workflow
-
-1. **Create a Story Request**: User provides a prompt or theme
-2. **Orchestrator Plans**: Story structure is created
-3. **Parallel Generation**: Text, images, audio, video generated simultaneously
-4. **Interleaved Assembly**: Content woven together in real-time
-5. **Stream to Frontend**: User sees story unfold progressively
-6. **Export Options**: Save as PDF, web page, video, or social posts
-
-## Submission Requirements
-
-- [x] Leverages Gemini model
-- [x] Built using Google ADK
-- [x] Uses multiple Google Cloud services
-- [x] Implements interleaved/mixed output capabilities
-- [ ] Public code repository with setup instructions
-- [ ] Google Cloud deployment proof (screen recording)
-- [ ] Architecture diagram
-- [ ] Demo video (under 4 minutes)
-
-## Demo Ideas
-
-1. **Interactive Children's Storybook**: Generate "The Lost Robot" with illustrations, narration, and animations
-2. **Marketing Campaign Generator**: Create complete product launch materials
-3. **Educational Explainer**: "How Photosynthesis Works" with diagrams and voiceover
-4. **Social Media Campaign**: Week-long content series with consistent branding
+---
 
 ## License
 
-MIT License - See LICENSE file for details
-
-## Team
-Steven(Liang) Chen
-Kuan Yu
-
-## Acknowledgments
-
-Built for the Gemini Live Agent Challenge 2026 - Creative Storyteller Track
-
-
-# Create service account
-gcloud services enable aiplatform.googleapis.com run.googleapis.com storage.googleapis.com
-gcloud iam service-accounts create future-artist-sa
-gcloud projects add-iam-policy-binding ${GOOGLE_CLOUD_PROJECT} \
-    --member="serviceAccount:future-artist-sa@${GOOGLE_CLOUD_PROJECT}.iam.gserviceaccount.com" \
-    --role="roles/aiplatform.user"
-
-# Deploy backend
-cd backend
-cloud run deploy futureartist-backend --source . --region us-central1 --allow-unauthenticated --service-account future-artist-sa@gen-lang-client-0807475477.iam.gserviceaccount.com
-
-# Deploy frontend
-cd frontend
-cloud run deploy futureartist-frontend --source . --region us-central1 --allow-unauthenticated --service-account future-artist-sa@gen-lang-client-0807475477.iam.gserviceaccount.com
+MIT — see [LICENSE](LICENSE)
